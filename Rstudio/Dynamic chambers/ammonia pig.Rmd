@@ -1,0 +1,117 @@
+---
+title: "Analisi NH3 Trattamenti su Suini"
+author: "Lorenzo Benedetti"
+date: "2026-03-17"
+output: html_document
+---
+
+```{r}
+# -------------------------------
+# Pulizia ambiente
+# -------------------------------
+rm(list = ls())   
+
+# -------------------------------
+# Cartella dati
+# -------------------------------
+setwd("/Users/lorenzobenedetti/Documents/GitHub/Benedetti-2026-N2O-AgroscenaNext/Rstudio/Dynamic chambers")
+
+# -------------------------------
+# Librerie
+# -------------------------------
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(car)
+library(emmeans)
+library(FSA)
+library(performance)
+library(knitr)
+library(kableExtra)
+
+# -------------------------------
+# Caricamento dati
+# -------------------------------
+data <- read_excel("Pig ammonia finale.xlsx")
+
+# -------------------------------
+# Rinomina colonna e fattore
+# -------------------------------
+data <- data %>% rename(NH3_TN = `N-NH3 perc TN`)
+data$TREATMENT <- as.factor(data$TREATMENT)
+
+# -------------------------------
+# Statistiche descrittive
+# -------------------------------
+desc <- data %>%
+  group_by(TREATMENT) %>%
+  summarise(
+    mean = mean(NH3_TN, na.rm = TRUE),
+    sd = sd(NH3_TN, na.rm = TRUE),
+    se = sd / sqrt(n()),
+    n = n()
+  )
+
+kable(desc, caption="Statistiche descrittive per trattamento") %>%
+  kable_styling(full_width=FALSE, position="center")
+
+# -------------------------------
+# Modello lineare e ANOVA
+# -------------------------------
+model <- lm(NH3_TN ~ TREATMENT, data = data)
+
+kable(summary(model)$coefficients, caption="Sommario modello lineare") %>%
+  kable_styling(full_width=FALSE, position="center")
+
+anova_res <- anova(model)
+kable(anova_res, caption="ANOVA") %>%
+  kable_styling(full_width=FALSE, position="center")
+
+# -------------------------------
+# Test non parametrici
+# -------------------------------
+kruskal_res <- kruskal.test(NH3_TN ~ TREATMENT, data = data)
+kruskal_res
+
+dunn_res <- dunnTest(NH3_TN ~ TREATMENT, data = data, method="bonferroni")
+dunn_res
+
+# -------------------------------
+# Post-hoc Tukey
+# -------------------------------
+posthoc <- emmeans(model, pairwise ~ TREATMENT, adjust="tukey")
+
+kable(as.data.frame(posthoc$emmeans), caption="Medie marginali") %>%
+  kable_styling(full_width=FALSE, position="center")
+
+kable(as.data.frame(posthoc$contrasts), caption="Contrasti Tukey") %>%
+  kable_styling(full_width=FALSE, position="center")
+
+# -------------------------------
+# Verifica assunzioni
+# -------------------------------
+shapiro_res <- shapiro.test(residuals(model))
+shapiro_res
+
+levene_res <- leveneTest(NH3_TN ~ TREATMENT, data = data)
+levene_res
+
+check_model(model)
+
+par(mfrow=c(2,2))
+plot(model)
+par(mfrow=c(1,1))
+
+# -------------------------------
+# Boxplot dei dati
+# -------------------------------
+ggplot(data, aes(x=TREATMENT, y=NH3_TN, fill=TREATMENT)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(
+    x="Treatment",
+    y="N-NH3 (% of TN)",
+    title="N-NH3 percentage of total N"
+  ) +
+  theme(legend.position="none")
+```
