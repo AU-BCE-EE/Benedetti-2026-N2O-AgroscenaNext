@@ -1,5 +1,5 @@
 ---
-title: "Analisi NH3 Trattamenti"
+title: "NH3 Cattle"
 author: "Lorenzo Benedetti"
 date: "2026-03-17"
 output: html_document
@@ -31,7 +31,7 @@ library(kableExtra)
 data <- read_excel("Cattle Final NH3.xlsx")
 
 
-data <- data %>% rename(NH3_TN = `N-NH3 perc TN`)
+data <- data %>% rename(NH3_TN = `N-NH3 perc TAN`)
 data$TREATMENT <- as.factor(data$TREATMENT)
 
 # -------------------------------

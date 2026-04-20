@@ -15,7 +15,7 @@ data <- read_excel("Cattle Final NH3.xlsx")
 
 
 data <- data %>%
-  rename(NH3_TN = `N-NH3 perc TN`)
+  rename(NH3_TN = `N-NH3 perc TAN`)
 
 
 data$TREATMENT <- as.factor(data$TREATMENT)
@@ -71,3 +71,4 @@ ggplot(data, aes(x = TREATMENT, y = NH3_TN, fill = TREATMENT)) +
     y = "N-NH3 (% of TN)",
     title = "N-NH3 percentage of total N"
   )
+
