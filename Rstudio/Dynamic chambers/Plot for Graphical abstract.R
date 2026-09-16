@@ -31,7 +31,7 @@ unique(data$TREATMENT)
 data$TREATMENT <- factor(
   data$TREATMENT,
   levels = c("CSRAW", "CSH2SO4", "CSAA"),
-  labels = c("RAW", "H2SO4", "CH3COOH")
+  labels = c("RAW", "H[2]*SO[4]", "CH[3]*COOH")
 )
 
 # -----------------------
@@ -93,28 +93,30 @@ ggplot(desc, aes(x = TREATMENT, y = mean, fill = TREATMENT)) +
   
   geom_text(
     aes(label = TREATMENT, y = mean / 2),
+    parse = TRUE,
     color = "white",
     fontface = "bold",
-    size = 7.8
+    size = 5.9
   ) +
   
   scale_fill_manual(values = c(
     "RAW" = "#00BFC4",
-    "H2SO4" = "#7CAE00",
-    "CH3COOH" = "#C77CFF"
+    "H[2]*SO[4]" = "#7CAE00",
+    "CH[3]*COOH" = "#C77CFF"
   )) +
   
   labs(
-    x = "Treatment",
+    x = "",
     y = expression(NH[3])
     
   ) +
   
-  theme_bw(base_size = 20) +
+  theme_bw(base_size = 22) +
   theme(
     legend.position = "none",
     panel.grid = element_blank(),
     axis.title = element_text(face = "bold"),
     axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
     axis.text = element_text(color = "black")
   )
